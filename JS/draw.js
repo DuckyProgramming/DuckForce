@@ -1,6 +1,13 @@
 function draw(){
+    clear()
+    background(125)
+    graphics.main.push()
+    graphics.main.translate(graphics.main.width/2,graphics.main.height/2)
+    graphics.main.scale(stage.focus.scale)
+    graphics.main.translate(-stage.focus.x,-stage.focus.y)
     switch(stage.scene){
         case 'battle':
+            graphics.main.background(0)
             for(let a=0,la=run.fore.length;a<la;a++){
                 for(let b=0,lb=run.fore[a].length;b<lb;b++){
                     run.fore[a][b].display()
@@ -17,4 +24,9 @@ function draw(){
             }
         break
     }
+    graphics.main.pop()
+    stage.scale=min(width/graphics.main.width,height/graphics.main.height)
+    displayTransition(graphics.main,transition)
+    image(graphics.main,width/2-stage.scale*graphics.main.width/2,height/2-stage.scale*graphics.main.height/2,stage.scale*graphics.main.width,stage.scale*graphics.main.height)
+    game.timer++
 }
