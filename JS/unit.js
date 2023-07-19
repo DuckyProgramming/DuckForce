@@ -1,50 +1,128 @@
 class unit extends entity{
-    constructor(layer,x,y,direction,body,type){
+    constructor(layer,parent,x,y,direction,body,type,offset){
         super(layer,x,y)
+        this.parent=parent
         this.direction=direction
         this.body=body
+        this.offset=offset
         this.bodyStats={
-            name:types.body[this.body].name
+            name:types.body[this.body].name,
+            life:types.body[this.body].life,
         }
         this.type=type
         this.typeStats={
-            name:types.unit[this.type].name
+            name:types.unit[this.type].name,
+            life:types.unit[this.type].life,
+            speed:types.unit[this.type].speed,
+            size:types.unit[this.type].size,
+            region:types.unit[this.type].region,
         }
-        this.anim={}
+        this.life=this.bodyStats.life*this.typeStats.life
+        this.selected=false
+        this.fade=0
+        this.target={position:{x:this.position.x,y:this.position.y}}
+        this.anim={selected:0,weapon:{}}
+        this.goal={direction:direction}
+        this.base={life:this.life}
+        this.collect={life:this.life}
+        this.effect={speed:0}
         switch(this.typeStats.name){
             case 'Unarmed':
                 
             break
         }
+        this.size=this.typeStats.size
+        entities.units.push(this)
+    }
+    deSelect(){
+        this.selected=false
+    }
+    calculateSpeed(distance){
+        this.effect.speed=this.typeStats.speed*min(1.25,dist(this.position.x,this.position.y,this.target.position.x,this.target.position.y)/distance)
     }
     display(){
         this.layer.push()
         this.layer.translate(this.position.x,this.position.y)
         this.layer.rotate(this.direction)
+        if(this.anim.selected>0){
+            this.layer.fill(100,255,100,this.fade*this.anim.selected*0.5)
+            this.layer.ellipse(0,0,this.typeStats.region*2)
+        }
         switch(this.typeStats.name){
             case 'Infantry':
             break
         }
         switch(this.bodyStats.name){
             case 'Duck':
-                this.layer.fill(255,125,0)
-                this.layer.ellipse(0,10,15,12)
-                this.layer.fill(255,235,0)
+                this.layer.fill(255,125,0,this.fade)
+                this.layer.ellipse(0,-10,15,12)
+                this.layer.fill(255,235,0,this.fade)
                 switch(this.typeStats.name){
                     case 'Unarmed':
                     break
                 }
                 this.layer.ellipse(0,0,24,24)
-                this.layer.fill(0)
-                this.layer.ellipse(-4,7,3,3)
-                this.layer.ellipse(4,7,3,3)
-                this.layer.rect(-3,13.5,1,2)
-                this.layer.rect(3,13.5,1,2)
+                this.layer.fill(0,this.fade)
+                this.layer.ellipse(-4,-7,3,3)
+                this.layer.ellipse(4,-7,3,3)
+                this.layer.rect(-3,-13.5,1,2)
+                this.layer.rect(3,-13.5,1,2)
             break
+        }
+        this.layer.pop()
+    }
+    displayLife(){
+        this.layer.push()
+        this.layer.translate(this.position.x,this.position.y+this.typeStats.region+4)
+        this.layer.fill(150,this.fade)
+        this.layer.rect(0,0,20,4,3)
+        if(this.collect.life>=this.life){
+            this.layer.fill(240,0,0,this.fade)
+            this.layer.rect((max(0,this.collect.life)/this.base.life)*10-10,0,(max(0,this.collect.life)/this.base.life)*20,1+min((max(0,this.collect.life)/this.base.life)*60,3),3)
+            this.layer.fill(min(255,510-max(0,this.life)/this.base.life*510)-max(0,5-max(0,this.life)/this.base.life*30)*25,max(0,this.life)/this.base.life*510,0,this.fade)
+            this.layer.rect((max(0,this.life)/this.base.life)*10-10,0,(max(0,this.life)/this.base.life)*20,1+min((max(0,this.life)/this.base.life)*60,3),3)
+        }else if(this.collect.life<this.life){
+            this.layer.fill(240,0,0,this.fade)
+            this.layer.rect((max(0,this.life)/this.base.life)*10-10,0,(max(0,this.life)/this.base.life)*20,1+min((max(0,this.life)/this.base.life)*60,3),3)
+            this.layer.fill(min(255,510-max(0,this.collect.life)/this.base.life*510)-max(0,5-max(0,this.collect.life)/this.base.life*30)*25,max(0,this.collect.life)/this.base.life*510,0,this.fade)
+            this.layer.rect((max(0,this.collect.life)/this.base.life)*10-10,0,(max(0,this.collect.life)/this.base.life)*20,1+min((max(0,this.collect.life)/this.base.life)*60,3),3)
         }
         this.layer.pop()
     }
     update(){
         super.update()
+        this.fade=smoothAnim(this.fade,this.life>0,0,1,5)
+        this.collect.life=this.collect.life*0.9+this.life*0.1
+        this.anim.selected=smoothAnim(this.anim.selected,this.selected,0,1,5)
+        let value=directionValue(this.direction,this.goal.direction,this.typeStats.speed*3)
+        switch(value){
+            case 0:
+                this.direction=this.goal.direction
+            break
+            case 1:
+                this.direction+=this.typeStats.speed*3
+            break
+            case 2:
+                this.direction-=this.typeStats.speed*3
+            break
+        }
+        if(dist(this.position.x,this.position.y,this.target.position.x,this.target.position.y)>this.typeStats.speed){
+            this.goal.direction=atan2(this.target.position.x-this.position.x,this.position.y-this.target.position.y)
+            this.position.x+=sin(this.goal.direction)*this.effect.speed
+            this.position.y-=cos(this.goal.direction)*this.effect.speed
+        }
+        if(this.fade<=0&&this.life<=0){
+            this.remove=true
+        }
+    }
+    onClick(){
+        if(dist(inputs.rel.x,inputs.rel.y,this.position.x,this.position.y)<=this.typeStats.region){
+            if(this.selected){
+                this.parent.deSelect()
+            }else{
+                this.parent.select()
+            }
+            this.parent.anyOn()
+        }
     }
 }

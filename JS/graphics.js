@@ -14,6 +14,7 @@ function setupGraphics(){
 	colorMode(RGB,255,255,255,1)
     graphics.main=createGraphics(900,600)
     setupLayer(graphics.main)
+	setupTrig()
 }
 function setupTrig(){
 	for(let a=0,la=180;a<la;a++){

@@ -3,6 +3,17 @@ class projectile extends entity{
         super(layer,x,y)
         this.type=type
         this.name=types.projectile[type].name
+        this.speed=types.projectile[type].speed
+        this.used=false
+        this.fade=0
+    }
+    hit(type){
+        switch(type){
+            case 0:
+                this.used=true
+                this.speed=0
+            break
+        }
     }
     display(){
         this.layer.push()
@@ -12,5 +23,10 @@ class projectile extends entity{
         this.layer.pop()
     }
     update(){
+        super.update()
+        this.fade=smoothAnim(this.fade,!this.used,0,1,5)
+        if(this.fade<=0&&this.used){
+            this.remove=true
+        }
     }
 }

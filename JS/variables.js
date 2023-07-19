@@ -14,39 +14,91 @@ types={
     ],unit:[
         {
             name:'Unarmed',
+            life:1,
+            speed:3,
             reload:30,
             damage:2,
             projectileType:'Bumper',
-            range:20
+            range:20,
+            size:12,
+            region:15,
         },{
             name:'Infantry',
-            reload:30,
-            damage:2,
-            projectileType:'Bumper',
-            range:20
+            life:1,
+            speed:2,
+            size:12,
+            region:15,
+        },{
+            name:'Light Machine Gun',
+            life:1,
+            speed:1,
+            size:12,
+            region:15,
         },{
             name:'Light Artillery',
-            reload:30,
-            damage:2,
-            projectileType:'Bumper',
-            range:20
+            life:1,
+            speed:1,
+            size:12,
+            region:15,
+        },{
+            name:'Medium Artillery',
+            life:1,
+            speed:1,
+            size:12,
+            region:15,
         },{
             name:'Police',
-            reload:30,
-            damage:2,
-            projectileType:'Bumper',
-            range:20
+            life:1,
+            speed:1,
+            size:12,
+            region:15,
         },{
             name:'Engineer',
-            reload:30,
-            damage:2,
-            projectileType:'Bumper',
-            range:20
+            life:1,
+            speed:1,
+            size:12,
+            region:15,
+        },{
+            name:'Light Antiair',
+            life:1,
+            speed:1,
+            size:12,
+            region:15,
+        },{
+            name:'Light Antitank',
+            life:1,
+            speed:1,
+            size:12,
+            region:15,
+        },{
+            name:'Light Mortar',
+            life:1,
+            speed:1,
+            size:12,
+            region:15,
         },
     ],faction:[
         {
             template:[
                 {
+                    name:'Separate Infantry Battalion',
+                    sub:[
+                        {variant:1,amount:8,body:'Duck',type:'Infantry'},
+                    ],
+                },{
+                    name:'Separate Infantry Regiment',
+                    sub:[
+                        {variant:0,name:'I Infantry Battalion',sub:[
+                            {variant:1,amount:8,body:'Duck',type:'Infantry'},
+                        ]},{variant:0,name:'II Infantry Battalion',sub:[
+                            {variant:1,amount:8,body:'Duck',type:'Infantry'},
+                        ]},{variant:0,name:'III Infantry Battalion',sub:[
+                            {variant:1,amount:8,body:'Duck',type:'Infantry'},
+                        ]},{variant:0,name:'Machine Gun Company',sub:[
+                            {variant:1,amount:2,body:'Duck',type:'Light Machine Gun'},
+                        ]},
+                    ],
+                },{
                     name:'Light Division',
                     sub:[
                         {variant:0,name:'I Light Regiment',sub:[
@@ -161,9 +213,10 @@ types={
     ]
 }
 stage={scene:'battle',focus:{x:0,y:0,scale:1},scale:0}
-game={speed:1}
-entities={factions:[]}
-run={fore:[]}
+game={speed:1,id:{formation:0}}
+inputs={key:[[false,false,false,false],[false,false,false,false]],mouse:{x:0,y:0},screen:{x:0,y:0},rel:{x:0,y:0}}
+entities={factions:[],formations:[],units:[],projectiles:[],walls:[],scan:[]}
+run={fore:[],life:[]}
 graphics={main:null}
-constants={trig:[]}
+constants={trig:[[],[]]}
 transition={trigger:false,anim:0,scene:stage.scene}
