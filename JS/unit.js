@@ -1,6 +1,7 @@
 class unit extends entity{
-    constructor(layer,parent,x,y,direction,body,type,offset){
+    constructor(layer,team,parent,x,y,direction,body,type,offset){
         super(layer,x,y)
+        this.team=team
         this.parent=parent
         this.direction=direction
         this.body=body
@@ -14,18 +15,22 @@ class unit extends entity{
             name:types.unit[this.type].name,
             life:types.unit[this.type].life,
             speed:types.unit[this.type].speed,
+            reload:types.unit[this.type].reload,
+            range:types.unit[this.type].range,
             size:types.unit[this.type].size,
             region:types.unit[this.type].region,
         }
         this.life=this.bodyStats.life*this.typeStats.life
         this.selected=false
         this.fade=0
-        this.target={position:{x:this.position.x,y:this.position.y}}
+        this.target={index:[-1,-1],position:{x:this.position.x,y:this.position.y}}
         this.anim={selected:0,weapon:{}}
         this.goal={direction:direction}
         this.base={life:this.life}
         this.collect={life:this.life}
         this.effect={speed:0}
+        this.firing=false
+        this.fire={reload:this.typeStats.reload}
         switch(this.typeStats.name){
             case 'Unarmed':
                 
@@ -44,12 +49,19 @@ class unit extends entity{
         this.layer.push()
         this.layer.translate(this.position.x,this.position.y)
         this.layer.rotate(this.direction)
-        if(this.anim.selected>0){
-            this.layer.fill(100,255,100,this.fade*this.anim.selected*0.5)
-            this.layer.ellipse(0,0,this.typeStats.region*2)
+        switch(this.team){
+            case 0:
+                this.layer.fill(100,150+this.anim.selected*105,255-this.anim.selected*155,this.fade*0.5)
+            break
+            case 1:
+                this.layer.fill(255,100,100,this.fade*0.5)
+            break
         }
+        this.layer.ellipse(0,0,this.typeStats.region*2)
         switch(this.typeStats.name){
             case 'Infantry':
+                this.layer.fill(50,this.fade)
+                this.layer.rect(-8,-11,3,9)
             break
         }
         switch(this.bodyStats.name){
@@ -107,16 +119,30 @@ class unit extends entity{
             break
         }
         if(dist(this.position.x,this.position.y,this.target.position.x,this.target.position.y)>this.typeStats.speed){
-            this.goal.direction=atan2(this.target.position.x-this.position.x,this.position.y-this.target.position.y)
-            this.position.x+=sin(this.goal.direction)*this.effect.speed
-            this.position.y-=cos(this.goal.direction)*this.effect.speed
+            if(this.firing){
+                if(this.target.index[0]>=0){
+                    this.target.position.x=entities.formations[this.target.index[0]].subs[this.target.index[1]].position.x
+                    this.target.position.y=entities.formations[this.target.index[0]].subs[this.target.index[1]].position.y
+                    this.goal.direction=atan2(this.target.position.x-this.position.x,this.position.y-this.target.position.y)
+                    if(this.fire.reload<=0){
+                    }
+                    if(dist(this.position.x,this.position.y,this.target.position.x,this.target.position.y)>this.typeStats.range){
+                        this.position.x+=sin(this.goal.direction)*this.effect.speed*(this.typeStats.range<50?1:0.2)
+                        this.position.y-=cos(this.goal.direction)*this.effect.speed*(this.typeStats.range<50?1:0.2)
+                    }
+                }
+            }else{
+                this.goal.direction=atan2(this.target.position.x-this.position.x,this.position.y-this.target.position.y)
+                this.position.x+=sin(this.goal.direction)*this.effect.speed
+                this.position.y-=cos(this.goal.direction)*this.effect.speed
+            }
         }
         if(this.fade<=0&&this.life<=0){
             this.remove=true
         }
     }
     onClick(){
-        if(dist(inputs.rel.x,inputs.rel.y,this.position.x,this.position.y)<=this.typeStats.region){
+        if(dist(inputs.rel.x,inputs.rel.y,this.position.x,this.position.y)<=this.typeStats.region&&this.team==game.playerTeam){
             if(this.selected){
                 this.parent.deSelect()
             }else{
@@ -125,4 +151,5 @@ class unit extends entity{
             this.parent.anyOn()
         }
     }
+    onClickNone(){}
 }

@@ -36,6 +36,7 @@ function draw(){
                     }
                 }
             }
+            runKey(inputs.key)
         break
     }
     graphics.main.pop()

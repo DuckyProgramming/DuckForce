@@ -138,6 +138,20 @@ function updateMouse(layer){
 	inputs.rel.x=(inputs.screen.x-layer.width/2)/stage.focus.scale+stage.focus.x
 	inputs.rel.y=(inputs.screen.y-layer.height/2)/stage.focus.scale+stage.focus.y
 }
+function runKey(key){
+	if(key[0][0]||key[1][0]){
+		stage.focus.x-=15
+	}
+	if(key[0][1]||key[1][1]){
+		stage.focus.x+=15
+	}
+	if(key[0][2]||key[1][2]){
+		stage.focus.y-=15
+	}
+	if(key[0][3]||key[1][3]){
+		stage.focus.y+=15
+	}
+}
 function smoothAnim(anim,trigger,minPoint,maxPoint,speed){
 	if(trigger&&anim<maxPoint){
 		return min(round(anim*speed+1)/speed,maxPoint)

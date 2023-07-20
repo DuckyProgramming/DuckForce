@@ -1,15 +1,15 @@
 function keyPressed(){
     switch(key){
-        case 'w':
+        case 'a':
             inputs.key[0][0]=true
         break
-        case 's':
+        case 'd':
             inputs.key[0][1]=true
         break
-        case 'a':
+        case 'w':
             inputs.key[0][2]=true
         break
-        case 'd':
+        case 's':
             inputs.key[0][3]=true
         break
         case 'ArrowLeft':
@@ -28,16 +28,16 @@ function keyPressed(){
 }
 function keyReleased(){
     switch(key){
-        case 'w':
+        case 'a':
             inputs.key[0][0]=false
         break
-        case 's':
+        case 'd':
             inputs.key[0][1]=false
         break
-        case 'a':
+        case 'w':
             inputs.key[0][2]=false
         break
-        case 'd':
+        case 's':
             inputs.key[0][3]=false
         break
         case 'ArrowLeft':

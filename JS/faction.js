@@ -4,11 +4,11 @@ class faction{
         this.team=team
         this.templates=[]
         this.subs=[]
-        for(let a=0,la=types.faction[this.team].template.length;a<la;a++){
-            this.templates.push(types.faction[team].template[a])
+        for(let a=0,la=types.template.length;a<la;a++){
+            this.templates.push(types.template[a])
         }
         let spawn=0
-        this.subs.push(new formation(this.layer,this,0,0,0,this.templates[spawn].sub,this.templates[spawn].name,0,0))
+        this.subs.push(new formation(this.layer,this.team,this,0,this.team*600,0,this.templates[spawn].sub,this.templates[spawn].name,0,0))
     }
     deSelect(){
         for(let a=0,la=this.subs.length;a<la;a++){

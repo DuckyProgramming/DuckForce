@@ -1,6 +1,7 @@
 class formation extends entity{
-    constructor(layer,parent,x,y,direction,template,name,level,stack){
+    constructor(layer,team,parent,x,y,direction,template,name,level,stack){
         super(layer,x,y)
+        this.team=team
         this.parent=parent
         this.direction=direction
         this.template=template
@@ -9,6 +10,8 @@ class formation extends entity{
         this.stack=stack
         this.total=0
         this.bottomLevel=true
+        this.target=-1
+        this.fade=1
         this.id=game.id.formation;game.id.formation++
         this.goto={x:0,y:0}
         this.subs=[]
@@ -17,7 +20,7 @@ class formation extends entity{
             let offset=[(this.stack*50)*lsin(this.direction),(this.stack*50)*lcos(this.direction)]
             if(this.template[a].variant==0){
                 this.bottomLevel=false
-                this.subs.push(new formation(this.layer,this,this.position.x+offset[0],this.position.y+offset[1],this.direction,this.template[a].sub,this.template[a].name,this.level+1,this.stack))
+                this.subs.push(new formation(this.layer,this.team,this,this.position.x+offset[0],this.position.y+offset[1],this.direction,this.template[a].sub,this.template[a].name,this.level+1,this.stack))
                 this.total+=this.subs[a].total
                 this.stack+=this.subs[a].total
             }else if(this.template[a].variant==1){
@@ -40,7 +43,7 @@ class formation extends entity{
                             unitOffset=[-54+b%4*36,-18+floor(b/4)*36]
                         break
                     }
-                    this.subs.push(new unit(this.layer,this,this.position.x+offset[0]+unitOffset[0]*lcos(this.direction)+unitOffset[1]*lsin(this.direction),this.position.y+offset[1]+unitOffset[0]*lsin(this.direction)-unitOffset[1]*lcos(this.direction),this.direction,findName(this.template[a].body,types.body),findName(this.template[a].type,types.unit),unitOffset))
+                    this.subs.push(new unit(this.layer,this.team,this,this.position.x+offset[0]+unitOffset[0]*lcos(this.direction)+unitOffset[1]*lsin(this.direction),this.position.y+offset[1]+unitOffset[0]*lsin(this.direction)-unitOffset[1]*lcos(this.direction),this.direction,findName(this.template[a].body,types.body),findName(this.template[a].type,types.unit),unitOffset))
                 }
                 this.total++
                 this.stack++
@@ -66,7 +69,32 @@ class formation extends entity{
     anyOn(){
         this.parent.anyOn()
     }
+    getRandomSub(){
+        let list=[]
+        for(let a=0,la=this.subs.length;a<la;a++){
+            if(this.subs[a].life>0){
+                list.push(a)
+            }
+        }
+        return list[floor(random(0,list.length))]
+    }
+    broadcastDeath(formation,index){
+        for(let a=0,la=this.subs.length;a<la;a++){
+            if(this.subs[a].target.index[0]==formation&&this.subs[a].target.index[1]==index){
+                this.subs[a].target.index[0]=-1
+            }else if(this.subs[a].target.index[0]==formation&&this.subs[a].target.index[1]>index){
+                this.subs[a].target.index[1]--
+            }
+        }
+    }
     display(){
+        this.layer.push()
+        this.layer.translate(this.position.x,this.position.y)
+        this.layer.fill(100,this.fade*0.5)
+        this.layer.stroke(50,this.fade*0.5)
+        this.layer.strokeWeight(2)
+        this.layer.quad(-5,0,0,-5,5,0,0,5)
+        this.layer.pop()
         for(let a=0,la=this.subs.length;a<la;a++){
             this.subs[a].display()
         }
@@ -78,12 +106,44 @@ class formation extends entity{
     }
     update(){
         super.update()
+        this.fade=smoothAnim(this.fade,this.subs.length>0,0,1,5)
         for(let a=0,la=this.subs.length;a<la;a++){
             this.subs[a].update()
             if(this.subs[a].remove){
+                for(let b=0,lb=entities.formations.length;b<lb;b++){
+                    entities.formations[b].broadcastDeath(entities.formations.indexOf(this),a)
+                }
                 this.subs.splice(a,1)
                 a--
                 la--
+            }
+        }
+        let total=[0,0]
+        for(let a=0,la=this.subs.length;a<la;a++){
+            total[0]+=this.subs[a].position.x
+            total[1]+=this.subs[a].position.y
+        }
+        this.position.x=total[0]/this.subs.length
+        this.position.y=total[1]/this.subs.length
+        if(this.bottomLevel){
+            if(this.target>=0){
+                for(let a=0,la=this.subs.length;a<la;a++){
+                    if(this.subs[a].target.index[0]<0){
+                        this.subs[a].target.index=[this.target,entities.formations[this.target].getRandomSub()]
+                    }
+                }
+            }
+            else{
+                if(this.time%5==0){
+                    for(let a=0,la=entities.formations.length;a<la;a++){
+                        if(dist(this.position.x,this.position.y,entities.formations[a].position.x,entities.formations[a].position.y)<300&&entities.formations[a].id!=this.id&&entities.formations[a].bottomLevel){
+                            this.target=a
+                            for(let b=0,lb=this.subs.length;b<lb;b++){
+                                this.subs[b].firing=true
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -94,13 +154,6 @@ class formation extends entity{
     }
     onClickNone(){
         if(this.bottomLevel&&this.selected){
-            let total=[0,0]
-            for(let a=0,la=this.subs.length;a<la;a++){
-                total[0]+=this.subs[a].position.x
-                total[1]+=this.subs[a].position.y
-            }
-            this.position.x=total[0]/this.subs.length
-            this.position.y=total[1]/this.subs.length
             this.direction=atan2(inputs.rel.x-this.position.x,this.position.y-inputs.rel.y)
             this.goto=inputs.rel
             let totalArea=0
