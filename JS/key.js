@@ -25,6 +25,13 @@ function keyPressed(){
 			inputs.key[1][3]=true
 		break
     }
+    switch(stage.scene){
+        case 'battle':
+            for(let a=0,la=entities.factions.length;a<la;a++){
+                entities.factions[a].onKey(key,keyCode)
+            }
+        break
+    }
 }
 function keyReleased(){
     switch(key){

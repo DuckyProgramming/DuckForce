@@ -17,9 +17,10 @@ function draw(){
                             c=lc
                             b--
                             lb--
+                        }else if(c==0){
+                            run.fore[a][b].display()
                         }
                     }
-                    run.fore[a][b].display()
                 }
             }
             for(let a=0,la=run.life.length;a<la;a++){

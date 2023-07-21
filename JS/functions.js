@@ -22,6 +22,7 @@ function findList(entry,list){
 			return a
 		}
 	}
+	return 0
 }
 function findName(name,list){
 	for(let a=0,la=list.length;a<la;a++){
@@ -29,6 +30,7 @@ function findName(name,list){
 			return a
 		}
 	}
+	return 0
 }
 function pointInsideBox(point,box){
 	if(point.position.x>box.position.x-box.width/2&&point.position.x<box.position.x+box.width/2&&point.position.y>box.position.y-box.height/2&&point.position.y<box.position.y+box.height/2){

@@ -1,10 +1,14 @@
 class projectile extends entity{
-    constructor(layer,x,y,type,direction){
+    constructor(layer,x,y,type,damage,direction,team){
         super(layer,x,y)
         this.type=type
+        this.damage=damage
         this.direction=direction
+        this.team=team
         this.name=types.projectile[type].name
         this.speed=types.projectile[type].speed
+        this.size=types.projectile[type].size
+        this.timer=types.projectile[type].timer*random(0.8,1.2)
         this.used=false
         this.fade=0
     }
@@ -13,6 +17,9 @@ class projectile extends entity{
             case 0:
                 this.used=true
                 this.speed=0
+            break
+            case 1:
+                this.used=true
             break
         }
     }
@@ -23,7 +30,8 @@ class projectile extends entity{
         switch(this.name){
             case 'Bullet':
                 this.layer.fill(40,this.fade)
-                this.layer.rect(0,1)
+                this.layer.rect(0,0.5,3,3)
+                this.layer.arc(0,-1,3,3,-180,0)
             break
         }
         this.layer.pop()
@@ -35,6 +43,18 @@ class projectile extends entity{
         this.position.y-=lcos(this.direction)*this.speed
         if(this.fade<=0&&this.used){
             this.remove=true
+        }
+        if(this.time>=this.timer){
+            this.used=true
+        }
+        if(!this.used){
+            for(let a=0,la=entities.units.length;a<la;a++){
+                if(dist(this.position.x,this.position.y,entities.units[a].position.x,entities.units[a].position.y)<this.size+entities.units[a].size&&entities.units[a].team!=this.team){
+                    this.hit(1)
+                    entities.units[a].hit(this.damage)
+                    entities.units[a].timers.hit=30
+                }
+            }
         }
     }
 }

@@ -1,7 +1,8 @@
 types={
     projectile:[
-        {name:'',speed:0},
-        {name:'Bumper',speed:0},
+        {name:'',speed:0,size:0,timer:0},
+        {name:'Bumper',speed:0,size:0,timer:5},
+        {name:'Bullet',speed:8,size:2,timer:60},
 
     ],body:[
         {
@@ -16,6 +17,7 @@ types={
             reload:30,
             damage:2,
             projectileType:'Bumper',
+            accuracy:0,
             range:20,
             size:12,
             region:15,
@@ -23,16 +25,22 @@ types={
             name:'Infantry',
             life:1,
             speed:2,
-            reload:60,
-            damage:3,
+            reload:90,
+            damage:6,
             projectileType:'Bullet',
+            accuracy:3,
             range:200,
             size:12,
             region:15,
         },{
             name:'Light Machine Gun',
-            life:1,
-            speed:1,
+            life:1.2,
+            speed:1.5,
+            reload:15,
+            damage:3,
+            projectileType:'Bullet',
+            accuracy:6,
+            range:175,
             size:12,
             region:15,
         },{
