@@ -10,12 +10,12 @@ class faction{
         let spawn
         switch(this.team){
             case 0: case 1:
-                spawn=0
-                this.subs.push(new formation(this.layer,this.team,this,0,this.team*600,0,this.templates[spawn].sub,this.templates[spawn].name,0,0))
+                spawn=2
+                this.subs.push(new formation(this.layer,this.team,this,0,this.team*720,0,this.templates[spawn].sub,this.templates[spawn].name,0,0))
             break
             default:
                 spawn=0
-                this.subs.push(new formation(this.layer,this.team,this,0,this.team*600,0,this.templates[spawn].sub,this.templates[spawn].name,0,0))
+                this.subs.push(new formation(this.layer,this.team,this,0,this.team*720,0,this.templates[spawn].sub,this.templates[spawn].name,0,0))
             break
         }
     }
@@ -27,11 +27,18 @@ class faction{
     anyOn(){
         this.any=true
     }
-    targetDown(index,x,y,id){
+    targetDown(index,x,y,x2,y2,id){
         for(let a=0,la=this.subs.length;a<la;a++){
-            if(this.subs[a].bottomLevel&&this.subs[a].id!=id&&this.subs[a].target==-1&&!this.subs[a].empty&&dist(this.subs[a].position.x,this.subs[a].position.y,x,y)<900){
-                this.subs[a].instantTarget(index)
+            if(this.subs[a].bottomLevel&&this.subs[a].id!=id&&this.subs[a].target==-1&&!this.subs[a].empty&&(dist(this.subs[a].position.x,this.subs[a].position.y,x,y)<900||dist(this.subs[a].position.x,this.subs[a].position.y,x2,y2)<300)){
+                this.subs[a].target=index
+            }else{
+                this.subs[a].targetDownLevel(index,x,2,x2,y2,id)
             }
+        }
+    }
+    buff(type,effect){
+        for(let a=0,la=this.subs.length;a<la;a++){
+            this.subs[a].buff(type,effect)
         }
     }
     checkEmptiness(){}

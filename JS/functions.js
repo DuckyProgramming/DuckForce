@@ -16,6 +16,23 @@ function displayTransition(layer,transition){
 		transition.anim=round(transition.anim*10-1)/10
 	}
 }
+function regTriangle(layer,x,y,radiusX,radiusY,direction){
+	layer.triangle(x+sin(direction)*radiusX,y+cos(direction)*radiusY,x+sin(direction+120)*radiusX,y+cos(direction+120)*radiusY,x+sin(direction+240)*radiusX,y+cos(direction+240)*radiusY)
+}
+function regPoly(layer,x,y,sides,radiusX,radiusY,direction){
+	layer.beginShape()
+	for(k=0;k<sides;k++){
+		layer.vertex(x+sin(direction+k*360/sides)*radiusX,y+cos(direction+k*360/sides)*radiusY)
+	}
+	layer.endShape(CLOSE)
+}
+function regStar(layer,x,y,sides,radiusX,radiusY,radius2X,radius2Y,direction){
+	layer.beginShape()
+	for(k=0;k<sides*2;k++){
+		layer.vertex(x+sin(direction+k*180/sides)*(k%2==0?radiusX:radius2X),y+cos(direction+k*180/sides)*(k%2==0?radiusY:radius2Y))
+	}
+	layer.endShape(CLOSE)
+}
 function findList(entry,list){
 	for(let a=0,la=list.length;a<la;a++){
 		if(list[a]==entry){
